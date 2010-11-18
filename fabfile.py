@@ -8,6 +8,9 @@ def upload_static():
                   remote_dir='/var/www',
                   delete=False)
 
+def compile_code():
+    local("raco make rack-serve.rkt")
+
 def upload_code():
     rsync_project(local_dir='.',
                   remote_dir='/opt/tictacwar',
@@ -23,6 +26,7 @@ def start_server():
 def deploy():
     """Upload the static files, code, supervisor config, and restart supervisor"""
     upload_static()
+    compile_code()
     upload_code()
     upload_supervisor()
     start_server()

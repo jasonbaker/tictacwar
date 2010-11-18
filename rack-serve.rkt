@@ -2,7 +2,8 @@
 (require web-server/servlet
          web-server/servlet-env
          web-server/templates
-         web-server/stuffers)
+         web-server/stuffers
+         "game.rkt")
 
 (define (start req)
   (main-page req))
@@ -15,7 +16,10 @@
             (list #"text/html" (render-code-page (embed/url handle-post))))
           
           (define (handle-post request)
-            `(html (body (p ,(extract-binding/single 'code (request-bindings request))))))]
+            (let* ([code (extract-binding/single 'code (request-bindings request))]
+                  [result (play-game code)])
+              (display result)
+               `(html (body (p ,@result)))))]
   (send/suspend/dispatch response-generator)))
 
 (serve/servlet start
