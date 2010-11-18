@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>TicTacWars</title>
+    <script src="http://jason-baker.com/static/js/codemirror.js"></script>
+    <script src="http://jason-baker.com/static/js/mirrorframe.js"></script>
+    <link rel="stylesheet" type="text/css" href="http://jason-baker.com/static/js/mirrorframe.js"/>
+
+    <style type="text/css">
+      .CodeMirror-line-numbers {
+        width: 2.2em;
+        color: #aaa;
+        background-color: #eee;
+        text-align: right;
+        padding-right: .3em;
+        font-size: 10pt;
+        font-family: monospace;
+        padding-top: .4em;
+        line-height: normal;
+      }
+    </style>
+  </head>
+  <body>
+    <form action="@action-url" method="POST">
+      <p><label for="code">Code:</label></p>
+      <div style="border-top: 1px solid black; border-bottom: 1px solid black;">
+        <textarea id="code" name="code" autofocus placeholder="Code goes here" cols=60 rows=20> (display "Hello, world!")</textarea>
+      </div>
+      <input type="submit"/>
+    </form>
+    <script type="text/javascript">
+      var textarea = document.getElementById('code');
+      var editor = CodeMirror.fromTextArea(textarea, {
+        path:  "http://jason-baker.com/static/js/",
+        content: textarea.value,
+        parserfile: ['http://jason-baker.com/static/js/tokenizescheme.js',
+                     'http://jason-baker.com/static/js/parsescheme.js'],
+        stylesheet: 'http://jason-baker.com/static/css/schemecolors.css',
+        lineNumbers: true,
+      });
+    </script>
+  </body>
+</html>
