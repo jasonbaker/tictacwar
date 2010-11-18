@@ -18,4 +18,8 @@
             `(html (body (p ,(extract-binding/single 'code (request-bindings request))))))]
   (send/suspend/dispatch response-generator)))
 
-(serve/servlet start)
+(serve/servlet start
+               #:command-line? #t
+               #:banner? #t
+               #:listen-ip #f
+               #:port 8000)
