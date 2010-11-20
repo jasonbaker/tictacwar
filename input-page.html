@@ -2,9 +2,24 @@
 <html lang="en">
   <head>
     <title>TicTacWars</title>
+    <link rel="stylesheet" href="http://jason-baker.com/static/css/blueprint/src/reset.css"
+          type="text/css" media="screen, projection" />
     <script src="http://jason-baker.com/static/js/codemirror.js"></script>
     <script src="http://jason-baker.com/static/js/mirrorframe.js"></script>
+    <script src="http://jason-baker.com/static/js/functions.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
     <link rel="stylesheet" type="text/css" href="http://jason-baker.com/static/js/mirrorframe.js"/>
+
+    <link rel="stylesheet" href="http://jason-baker.com/static/css/blueprint/screen.css"
+          type="text/css" media="screen, projection" />
+    <link rel="stylesheet" href="http://jason-baker.com/static/css/blueprint/print.css"
+          type="text/css" media="print" /> 
+    <link rel="stylesheet" href="http://jason-baker.com/static/css/blueprint/src/typography.css"
+          type="text/css" media="screen, projection" /> 
+    <link rel="stylesheet" href="http://jason-baker.com/static/css/blueprint/src/forms.css"
+          type="text/css" media="screen, projection" /> 
+    <!--[if lt IE 8]><link rel="stylesheet" href="http://jason-baker.com/static/css/blueprint/ie.css"
+                           type="text/css" media="screen, projection"><![endif]-->
 
     <style type="text/css">
       .CodeMirror-line-numbers {
@@ -20,24 +35,58 @@
       }
     </style>
   </head>
-  <body>
-    <form action="@action-url" method="POST">
-      <p><label for="code">Code:</label></p>
-      <div style="border-top: 1px solid black; border-bottom: 1px solid black;">
-        <textarea id="code" name="code" autofocus placeholder="Code goes here" cols=60 rows=20> (display "Hello, world!")</textarea>
-      </div>
-      <input type="submit"/>
+  <body style="background-color: #D8D9C5">
+    <div class="container"> 
+      <h1>TicTacWars</h1>
+      <form action="@action-url" method="POST">
+        <div class="span-12 border"> 
+          <h2>X's code</h2>
+          <select class="codetypex" name="codetypex" autofocus>
+            <option value="custom">custom</option>
+            @in[p prefab]{
+            <option value="@p">@|p|</option>
+            }
+          </select>
+          <div style="border-top: 1px solid black; border-bottom: 1px solid black;">
+            <textarea id="codex" name="codex" cols=60 rows=10></textarea>
+          </div>
+        </div>
+        <div class="span-12 last">
+          <h2>O's code</h2>
+          <select class="codetypeo" name="codetypeo">
+            <option value="custom">custom</option>
+            @in[p prefab]{
+            <option value="@p">@|p|</option>
+            }          
+          </select>
+          <div style="border-top: 1px solid black; border-bottom: 1px solid black;">
+            <textarea id="codeo" name="codeo" cols=60 rows=10></textarea>
+          </div>
+        </div>
+        <input type="submit"/>
+    </div>
     </form>
     <script type="text/javascript">
-      var textarea = document.getElementById('code');
-      var editor = CodeMirror.fromTextArea(textarea, {
-        path:  "http://jason-baker.com/static/js/",
-        content: textarea.value,
-        parserfile: ['http://jason-baker.com/static/js/tokenizescheme.js',
-                     'http://jason-baker.com/static/js/parsescheme.js'],
-        stylesheet: 'http://jason-baker.com/static/css/schemecolors.css',
-        lineNumbers: true,
+      editors = {};
+      jQuery.each(['codeo', 'codex'], function(i, textarea_id){
+              var textarea = document.getElementById(textarea_id);
+              editors[textarea_id] = CodeMirror.fromTextArea(textarea, {
+                path:  "http://jason-baker.com/static/js/",
+                content: textarea.value,
+                parserfile: ['http://jason-baker.com/static/js/tokenizescheme.js',
+                             'http://jason-baker.com/static/js/parsescheme.js'],
+                stylesheet: 'http://jason-baker.com/static/css/schemecolors.css',
+                lineNumbers: true,
+        })
       });
+
+      jQuery.each([{select: '.codetypex', editor: editors.codex},
+                   {select: '.codetypeo', editor: editors.codeo}], function(i, data){
+              $(data.select).change(function(e){
+                      data.editor.setCode(algorithms[this.value]);
+              })});
+                      
+              
     </script>
   </body>
 </html>

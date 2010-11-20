@@ -1,40 +1,83 @@
 #lang racket
-(require racket/sandbox)
-(provide play-game board-spaces)
-
-(struct turn (player position))
-(struct player (name func))
-(struct state (unused moves-list user computer))
+(require racket/sandbox
+         "util.rkt"
+         "structs.rkt")
+(provide play-game board-spaces has-line?)
 
 (define board-spaces (for*/list ([row "abc"]
                                 [col '(1 2 3)])
                                (format "~a~a" row col)))
 
 (define (code->func code)
-  (lambda (moves-list)
-    (let* ([evaluator (make-evaluator 'racket/base `(define moves ',moves-list))]
+  (lambda (current-state)
+    (let* ([evaluator (make-evaluator 'racket/base `(define current-state ,current-state) #:requires "structs.rkt")]
           [result (evaluator code)])
       (display result)
       (kill-evaluator evaluator)
       result)))
       
 (define (take-turn current-player current-state)
-  (with-handlers ([exn:fail? (lambda (exn) other-player)])
-    (let ([result (func (state-moves-list current-state))])
+  (with-handlers ([exn:fail? (lambda (exn) (raise exn) )])
+    (let ([result ((player-func current-player) current-state)])
       (struct-copy state
                    current-state
-                   [moves-list (cons (list current-player result) moves-list)])))
+                   [moves-list (cons (turn (player-name current-player) result) (state-moves-list current-state))]
+                   [unused (remq result (state-unused current-state))]))))
 
-(define (player-turn current-state)
+(define (has-line? moves)
+  (let ((positions (flatten (map string->list moves))))
+    (ormap
+     (lambda (char)
+       (>=
+        (count
+         (lambda (lchar)
+           (char-ci=? lchar char))
+         positions)
+        3))
+     '(#\a #\b #\c #\1 #\2 #\3))))
+        
   
+(define (winner? player current-state)
+  (let ([moves (for/set ((t (state-moves-list current-state))
+                         #:when (eq? (turn-player t) (player-name player)))
+                        (turn-position t))])
+    (if (or
+         (subset? (set "a1" "b2" "c3") moves)
+         (subset? (set "a3" "b2" "c1") moves))
+        #t
+        (has-line? (set->list moves)))))
+        
+  
+(define (user-turn current-state)
+  (let* ([user (state-user current-state)]
+         [new-state (take-turn user current-state)])
+    (if (winner? user new-state)
+        (struct-copy state new-state [winner user])
+        (if (= (length (state-unused new-state)) 0)
+            (struct-copy state new-state [winner 'cat])
+            (computer-turn new-state)))))
 
-(define (play-game my-code [moves-list '()])
-  (let ([user (player 'x (code->func my-code))]
-        [computer (player 'o '())]
-        [initial-state (state board-spaces '() user computer)])
-    (take-turn initial-state)))
+(define (computer-turn current-state)
+  (let* ([user (state-computer current-state)]
+         [new-state (take-turn user current-state)])
+    (if (winner? user new-state)
+        (struct-copy state new-state [winner user])
+        (user-turn new-state))))
+    
+(define (play-game)
+  (let* ([user (player 'x random-strategy)]
+        [computer (player 'o random-strategy)]
+        [initial-state (state board-spaces '() user computer #f)])
+    (user-turn initial-state)))
   
 (define (turn->str turn-list)
   (map
-   (lambda (turn) (format "~a placed at ~a" (turn-player turn) (turn-position turn)))))
-  
+   (lambda (turn) (format "~a placed at ~a" (turn-player turn) (turn-position turn)))
+   turn-list))
+
+(define (random-strategy current-state)
+  (let ((unused (state-unused current-state)))
+    (list-ref
+     unused
+     (random (length unused)))))
+

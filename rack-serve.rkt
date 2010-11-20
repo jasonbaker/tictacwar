@@ -9,7 +9,8 @@
   (main-page req))
 
 (define (render-code-page action-url)
-  (include-template "input-page.html"))
+  (let ((prefab '("random")))
+    (include-template "input-page.html")))
 
 (define (main-page req)
   (local [(define (response-generator embed/url)
