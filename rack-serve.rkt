@@ -3,7 +3,8 @@
          web-server/servlet-env
          web-server/templates
          web-server/stuffers
-         "game.rkt")
+         "game.rkt"
+         "structs.rkt")
 
 (define (start req)
   (main-page req))
@@ -12,19 +13,32 @@
   (let ((prefab '("random")))
     (include-template "input-page.html")))
 
+(define (extract-winner final-state)
+  (symbol->string
+   (if (eq? (state-winner final-state) 'cat)
+       'cat
+       (player-name (state-winner final-state)))))
+
+(define (render-result-page final-state)
+  (let ([winner (extract-winner final-state)]
+        [turns (turn->string (state-moves-list final-state))])
+    (include-template "result-page.html")))
+       
+
 (define (main-page req)
   (local [(define (response-generator embed/url)
             (list #"text/html" (render-code-page (embed/url handle-post))))
           
           (define (handle-post request)
-            (let* ([code (extract-binding/single 'code (request-bindings request))]
-                  [result (play-game code)])
-              (display result)
-               `(html (body (p ,@result)))))]
+            (let* ([x-code (extract-binding/single 'codex (request-bindings request))]
+                   [o-code (extract-binding/single 'codeo (request-bindings request))]
+                   [result (play-game x-code o-code)])
+               (list #"text/html" (render-result-page result))))]
   (send/suspend/dispatch response-generator)))
 
 (serve/servlet start
                #:command-line? #t
                #:banner? #t
                #:listen-ip #f
-               #:port 8000)
+               #:port 8000
+               #:servlet-current-directory ".")

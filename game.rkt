@@ -2,7 +2,7 @@
 (require racket/sandbox
          "util.rkt"
          "structs.rkt")
-(provide play-game board-spaces has-line?)
+(provide play-game board-spaces has-line? turn->string)
 
 (define board-spaces (for*/list ([row "abc"]
                                 [col '(1 2 3)])
@@ -10,9 +10,8 @@
 
 (define (code->func code)
   (lambda (current-state)
-    (let* ([evaluator (make-evaluator 'racket/base `(define current-state ,current-state) #:requires "structs.rkt")]
+    (let* ([evaluator (make-evaluator 'racket/base `(define current-state ,current-state) #:requires '("./structs.rkt"))]
           [result (evaluator code)])
-      (display result)
       (kill-evaluator evaluator)
       result)))
       
@@ -64,13 +63,13 @@
         (struct-copy state new-state [winner user])
         (user-turn new-state))))
     
-(define (play-game)
-  (let* ([user (player 'x random-strategy)]
-        [computer (player 'o random-strategy)]
+(define (play-game x-code o-code)
+  (let* ([user (player 'x (code->func x-code))]
+        [computer (player 'o (code->func o-code))]
         [initial-state (state board-spaces '() user computer #f)])
     (user-turn initial-state)))
   
-(define (turn->str turn-list)
+(define (turn->string turn-list)
   (map
    (lambda (turn) (format "~a placed at ~a" (turn-player turn) (turn-position turn)))
    turn-list))

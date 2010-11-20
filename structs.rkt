@@ -3,7 +3,7 @@
          (struct-out player)
          (struct-out state))
 
-(struct turn (player position) #:transparent)
-(struct player (name func) #:transparent)
-(struct state (unused moves-list user computer winner) #:transparent)
+(struct turn (player position) #:prefab)
+(struct player (name func) #:prefab)
+(struct state (unused moves-list user computer winner) #:prefab)
 
