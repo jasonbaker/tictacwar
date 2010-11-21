@@ -40,7 +40,8 @@
        
 ;; The servelet's main entry point
 (define (main-page req)
-  (local [(define (response-generator embed/url)
+  (local [(define (response-generator embed/url) ; This page could probably be moved to be a static HTML page,
+                                                 ; but that could make development a pain.
             (list #"text/html" (render-code-page (embed/url handle-post))))
           
           (define (handle-post request)
