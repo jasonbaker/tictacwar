@@ -30,7 +30,7 @@
 
 (define (render-result-page final-state)
   (let* ([winner (extract-winner final-state)]
-         [turns (turn->string (reverse (state-moves-list final-state)))]
+         [turns (turn-list->string-list (reverse (state-moves-list final-state)))]
          [b (curry hash-ref (make-board-hash final-state))])
     (include-template "result-page.html")))
        

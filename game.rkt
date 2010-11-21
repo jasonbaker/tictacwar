@@ -2,7 +2,7 @@
 (require racket/sandbox
          "util.rkt"
          "structs.rkt")
-(provide play-game board-spaces has-line? turn->string)
+(provide play-game board-spaces has-line? turn-list->string-list)
 
 (define return-final-state (make-parameter #f))
 
@@ -12,7 +12,7 @@
 
 (define (code->func code)
   (parameterize ([sandbox-eval-limits '(1 10)])
-    (let ([evaluator (make-evaluator 'racket/base #:requires '("./structs.rkt"))])
+    (let ([evaluator (make-evaluator 'racket/base #:requires '("./structs.rkt" racket/list))])
       (lambda (current-state)
         (evaluator `(define current-state ,current-state))
         (evaluator code)))))
@@ -94,6 +94,7 @@
           (struct-copy state new-state [winner o])
           (x-turn new-state)))))
     
+;; The entry point for the game
 (define (play-game x-code o-code)
   (let* ([x (player 'x (code->func x-code))]
          [o (player 'o (code->func o-code))]
@@ -102,7 +103,8 @@
             (parameterize ((return-final-state return))
               (x-turn initial-state)))))
   
-(define (turn->string turn-list)
+;; Turn a list of turns into a list of strings
+(define (turn-list->string-list turn-list)
   (map
    (lambda (turn)
      (if (turn-message turn)
