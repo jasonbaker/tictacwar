@@ -19,10 +19,12 @@
 
 (define (take-turn current-player current-state)
   (let ([result ((player-func current-player) current-state)])
-    (struct-copy state
-                 current-state
-                 [moves-list (cons (turn (player-name current-player) result #f) (state-moves-list current-state))]
-                 [unused (remq result (state-unused current-state))])))
+    (if (member result (state-unused current-state))
+        (struct-copy state
+                     current-state
+                     [moves-list (cons (turn (player-name current-player) result #f) (state-moves-list current-state))]
+                     [unused (remove result (state-unused current-state))])
+        (error (format "board space \"~a\" is already taken or does not exist" result)))))
 
 ;; Determine if there is a vertical or horizontal row.
 (define (has-line? moves)
@@ -66,7 +68,7 @@
       [(exn:fail:sandbox-terminated? exn)
        (set! message (format "Player ~a did something they weren't supposed to" current-player-name))]
       [else
-       (set! message (format "Player ~a raised an exception" current-player-name))])
+       (set! message (format "Player ~a raised an exception:  ~a" current-player-name (exn-message exn)))])
       ((return-final-state)
        (struct-copy state
                     current-state
