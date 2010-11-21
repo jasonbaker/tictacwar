@@ -21,6 +21,8 @@
           type="text/css" media="screen, projection" /> 
     <!--[if lt IE 8]><link rel="stylesheet" href="http://jason-baker.com/static/css/blueprint/ie.css"
                            type="text/css" media="screen, projection"><![endif]-->
+    <link rel="stylesheet" href="http://jason-baker.com/static/css/tictacwar.css"
+          type="text/css" media="screen, projection" />
 
     <style type="text/css">
       .CodeMirror-line-numbers {
@@ -36,12 +38,16 @@
       }
     </style>
   </head>
-  <body style="background-color: #D8D9C5">
+  <body> 
     <div class="container"> 
       <h1>TicTacWars</h1>
+      <p id="h1caption">by <a href="http://jason-baker.com">Jason Baker</a></p>
 
       <p>Welcome to TicTacWars! See <a href="#instructions">below</a> for instructions on how to play.
 
+      <p>Read the <a href="https://github.com/jasonbaker/tictacwar">source code</a> on github!</p>
+
+      <p><a href="amnorvend@"@"gmail.com">Email me</a> if you have any questions, comments, or have figured out a way to break this!</p>
 
       <form action="@action-url" method="POST">
         <div class="span-12 border"> 
@@ -96,6 +102,7 @@
 
     <p>There will be a <tt>current-state</tt> variable defined that will contain a <tt>state</tt> structure representing the current
     game's state.  Look at the pre-defined strategies for more information.</p>
+
 
     </div>
     <script type="text/javascript">

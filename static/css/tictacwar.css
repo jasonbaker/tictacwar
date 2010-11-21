@@ -1,3 +1,13 @@
 body{
     background-color:  #D8D9C5;
 }
+
+#h1caption{
+    vertical-align:  text-top;
+    padding-bottom: 5px;
+    font-size: 10px;
+}
+
+h1{
+    margin-bottom: 0px;
+}
