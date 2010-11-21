@@ -3,10 +3,12 @@ from fabric.contrib.project import rsync_project
 
 env.hosts = ['jason-baker.com']
 
+rsync_exclude = ['*~', '.git', 'fabfile.py*']
 def upload_static():
     rsync_project(local_dir='static',
                   remote_dir='/var/www',
-                  delete=False)
+                  delete=False,
+                  exclude=rsync_exclude)
 
 def compile_code():
     local("raco make rack-serve.rkt")
@@ -14,7 +16,7 @@ def compile_code():
 def upload_code():
     rsync_project(local_dir='.',
                   remote_dir='/opt/tictacwar',
-                  exclude=['static', '*~', '.git', 'fabfile.py*'])
+                  exclude=rsync_exclude + ['static', 'supervisor'])
 
 def upload_supervisor():
     put('supervisor/tictacwar.conf', '/etc/supervisor/conf.d/')
