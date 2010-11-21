@@ -4,12 +4,16 @@
          "structs.rkt")
 (provide play-game board-spaces has-line? turn-list->string-list)
 
+;; This is filled in by play-game.  It is a continuation that is used to
+;; indicate that a state is the final state.
 (define return-final-state (make-parameter #f))
 
+;; A list of all spaces on a tic-tac-toe board
 (define board-spaces (for*/list ([row "abc"]
                                 [col '(1 2 3)])
                                (format "~a~a" row col)))
 
+;; Turn a string of scheme code into a callable
 (define (code->func code)
   (parameterize ([sandbox-eval-limits '(1 10)])
     (let ([evaluator (make-evaluator 'racket/base #:requires '("./structs.rkt" racket/list))])
@@ -17,6 +21,7 @@
         (evaluator `(define current-state ,current-state))
         (evaluator code)))))
 
+;; Take a turn.  Will raise an error if a space that is already filled is selected.
 (define (take-turn current-player current-state)
   (let ([result ((player-func current-player) current-state)])
     (if (member result (state-unused current-state))
@@ -51,10 +56,13 @@
         #t
         (has-line? (set->list moves)))))
         
+;; Did the sandbox raise an error with symbol as the reason?  (Symbol will be
+;; either 'time or 'memory)
 (define (sandbox-was-terminated-for? exn symbol)
   (and (exn:fail:resource? exn) (eq? (exn:fail:resource-resource exn) symbol)))
       
 
+;; Make an exception handler that will fill in the turn's message based on the error
 (define (make-exception-handler current-state other-player current-player)
   (lambda (exn)
     (let ([message #f]
@@ -76,6 +84,7 @@
                     [moves-list (cons (turn #f #f message)
                                       (state-moves-list current-state))])))))
 
+;; Take x's turn
 (define (x-turn current-state)
   (with-handlers ([exn:fail? (make-exception-handler current-state (state-o current-state) (state-x current-state))])
     (let* ([x (state-x current-state)]
@@ -86,6 +95,8 @@
               (struct-copy state new-state [winner 'cat])
               (o-turn new-state))))))
 
+
+;; Take o's turn
 (define (o-turn current-state)
   (with-handlers ([exn:fail? (make-exception-handler current-state (state-x current-state) (state-o current-state))])
     (let* ([o (state-o current-state)]
@@ -111,10 +122,3 @@
          (turn-message turn)
          (format "~a placed at ~a" (turn-player turn) (turn-position turn))))
    turn-list))
-
-(define (random-strategy current-state)
-  (let ((unused (state-unused current-state)))
-    (list-ref
-     unused
-     (random (length unused)))))
-
