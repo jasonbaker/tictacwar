@@ -8,6 +8,7 @@
     <script src="http://jason-baker.com/static/js/mirrorframe.js"></script>
     <script src="http://jason-baker.com/static/js/functions.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
+    <script src="http://jason-baker.com/static/js/sprintf.js"></script>
     <link rel="stylesheet" type="text/css" href="http://jason-baker.com/static/js/mirrorframe.js"/>
 
     <link rel="stylesheet" href="http://jason-baker.com/static/css/blueprint/screen.css"
@@ -38,14 +39,15 @@
   <body style="background-color: #D8D9C5">
     <div class="container"> 
       <h1>TicTacWars</h1>
+
+      <p>Welcome to TicTacWars! See <a href="#instructions">below</a> for instructions on how to play.
+
+
       <form action="@action-url" method="POST">
         <div class="span-12 border"> 
           <h2>X's code</h2>
+          <label for="codetypex">Select strategy:</label>
           <select class="codetypex" name="codetypex" autofocus>
-            <option value="custom">custom</option>
-            @in[p prefab]{
-            <option value="@p">@|p|</option>
-            }
           </select>
           <div style="border-top: 1px solid black; border-bottom: 1px solid black;">
             <textarea id="codex" name="codex" cols=60 rows=10></textarea>
@@ -53,19 +55,49 @@
         </div>
         <div class="span-12 last">
           <h2>O's code</h2>
+          <label for="codetypeo">Select strategy:</label>
           <select class="codetypeo" name="codetypeo">
-            <option value="custom">custom</option>
-            @in[p prefab]{
-            <option value="@p">@|p|</option>
-            }          
           </select>
           <div style="border-top: 1px solid black; border-bottom: 1px solid black;">
             <textarea id="codeo" name="codeo" cols=60 rows=10></textarea>
           </div>
         </div>
         <input type="submit"/>
-    </div>
     </form>
+
+    <br />
+
+    <a name="instructions"></a>
+    <p>To play TicTacWars, both players need an algorithm that will make moves for them.  This algorithm should be a scheme expression
+    that will return a string representing the place on the board the player should fill.  The first character should be the column
+    represented as a letter ("a", "b", or "c"), and the second character should be the row represented as a number ("1", "2", or "3").</p>
+
+    <p>A player will lose if any of the following occurs:</p>
+
+    <ol>
+      <li>Their expression raises an exception</li>
+      <li>Their expression takes longer than 1 second</li>
+      <li>Their expression uses up more than 10 MB (including code)</li>
+      <li>Their expression selects a space that is not available</li>
+    </ol>
+
+    <p>The following structs are defined in the initial namespace:</p>
+
+    <pre>
+(struct turn (player position message) #:prefab)
+(struct player (name func) #:prefab)
+(struct state (unused ; A list of positions that haven't been used 
+               moves-list ; A list of turn structures that represents the game's history
+               x ; A player structure representing player x
+               o ; A player structure representing player o
+               winner) ; This will always be empty, and don't try to change it either ;-)
+               #:prefab)
+</pre>
+
+    <p>There will be a <tt>current-state</tt> variable defined that will contain a <tt>state</tt> structure representing the current
+    game's state.  Look at the pre-defined strategies for more information.</p>
+
+    </div>
     <script type="text/javascript">
       editors = {};
       jQuery.each(['codeo', 'codex'], function(i, textarea_id){
@@ -86,7 +118,14 @@
                       data.editor.setCode(algorithms[this.value]);
               })});
                       
-              
+      $(document).ready(function(){
+        jQuery.each(['codetypex', 'codetypeo'], function(i, data){
+          var select_box = $('.' + data);
+          jQuery.each(algorithms, function(prop_name, value){
+            select_box.append(sprintf('<option value="%s">%s</option>', prop_name, prop_name));
+          })
+        })
+      })
     </script>
   </body>
 </html>

@@ -10,7 +10,7 @@
   (main-page req))
 
 (define (render-code-page action-url)
-  (let ((prefab '("random")))
+  (let ((prefab '("random" "error")))
     (include-template "input-page.html")))
 
 (define (extract-winner final-state)
@@ -19,9 +19,19 @@
        'cat
        (player-name (state-winner final-state)))))
 
+(define (make-board-hash final-state)
+  (let ([moved-hash (make-hash
+                    (for/list ([t (state-moves-list final-state)]
+                               #:when t)
+                              `(,(turn-position t) . ,(symbol->string (turn-player t)))))])
+    (for ([p (state-unused final-state)])
+         (dict-set! moved-hash p " "))
+    (make-immutable-hash (hash->list moved-hash))))
+
 (define (render-result-page final-state)
-  (let ([winner (extract-winner final-state)]
-        [turns (turn->string (state-moves-list final-state))])
+  (let* ([winner (extract-winner final-state)]
+         [turns (turn->string (state-moves-list final-state))]
+         [b (curry hash-ref (make-board-hash final-state))])
     (include-template "result-page.html")))
        
 

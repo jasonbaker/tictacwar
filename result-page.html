@@ -19,11 +19,22 @@
           type="text/css" media="screen, projection" />
   </head>
   <body>
+    <div class="container">
+    <p><a href="/servlets/standalone.rkt">&lt;&lt; new game</a></p>
     <h2>Results</h2>
+    <pre>
+ @b["a1"] | @b["a2"] | @b["a3"]
+---+---+---
+ @b["b1"] | @b["b2"] | @b["b3"]  
+---+---+---
+ @b["c1"] | @b["c2"] | @b["c3"]
+    </pre>
+
     <ul>
       @in[t turns]{
           <li>@|t|</li>
       }
     </ul>
     <p>The winner is:  @|winner|!</p>
+    </div>
 </html>
